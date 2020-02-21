@@ -94,20 +94,81 @@ class _MyHomePageState extends State<MyHomePage> {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text(widget.title),
+        actions: <Widget>[
+          Icon(Icons.search),
+        ],
+        backgroundColor: Colors.indigo,
+        elevation: 50.0,
       ),
+
+
+      drawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              accountName: Text("Ashish Rawat"),
+              accountEmail: Text("ashishrawat2911@gmail.com"),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor:
+                Theme.of(context).platform == TargetPlatform.iOS
+                    ? Colors.blue
+                    : Colors.white,
+                child: Text(
+                  "A",
+                  style: TextStyle(fontSize: 40.0),
+                ),
+              ),
+            ),
+
+            ListTile(
+
+              leading: new Icon(Icons.flight_land),
+              title: Text("Arrivals"),
+            ),
+
+            ListTile(
+              leading: new Icon(Icons.flight_takeoff),
+              title: Text("Departures"),
+            ),
+
+            ListTile(
+              leading: new Icon(Icons.flight),
+              title: Text("Airports"),
+            ),
+
+            ListTile(
+              leading: new Icon(Icons.map),
+              title: Text("Indoor Map"),
+            ),
+
+            ListTile(
+              leading: new Icon(Icons.email),
+              title: Text("Contact Develop"),
+            ),
+
+
+
+          ],
+        ),
+      ),
+
+
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 0, // this will be set when a new tab is tapped
         items: [
           BottomNavigationBarItem(
-            icon: new Icon(Icons.home),
-            title: new Text('Home'),
+            icon: new Icon(Icons.flight_land),
+            title: new Text('Arrivals'),
           ),
           BottomNavigationBarItem(
-            icon: new Icon(Icons.mail),
-            title: new Text('Messages'),
+            icon: new Icon(Icons.flight_takeoff),
+            title: new Text('Departures'),
           ),
+
+
           BottomNavigationBarItem(
-              icon: Icon(Icons.person), title: Text('Profile'))
+              icon: Icon(Icons.flight), title: Text('Airports'))
         ],
       ),
       body: Container(
@@ -119,7 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
             print(snapshot.error);
             print(snapshot.data);
             if (snapshot.data == null) {
-              return Container(child: Center(child: Text("Loading...")));
+              return Container(child: Center(child: new CircularProgressIndicator(),));
             } else {
               return ListView.builder(
                 itemCount: snapshot.data.length,
@@ -155,8 +216,9 @@ class DetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-      title:
-          Text(flight.remarksWithTime + " - " + flight.destinationAirportName),
+      title: Text(flight.remarksWithTime + " - " + flight.destinationAirportName),
+          backgroundColor: Colors.lightGreen,
+          elevation: 50.0,
     ));
   }
 }
