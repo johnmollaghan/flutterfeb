@@ -3,8 +3,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
 import 'FidsData.dart';
 import 'FlightDetailsPage.dart';
+import 'FlightSearchPage.dart';
 
 void main() => runApp(new MyApp());
 
@@ -96,7 +98,15 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: new AppBar(
         title: new Text(widget.title),
         actions: <Widget>[
-          Icon(Icons.search),
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  new MaterialPageRoute(
+                      builder: (context) => FlightSearchPage()));
+            },
+          ),
         ],
         backgroundColor: Colors.indigo,
         elevation: 50.0,
@@ -194,9 +204,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
-
-
-
-
-
