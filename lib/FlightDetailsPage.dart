@@ -70,7 +70,7 @@ class FlightDetailsPage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      flight.originAirportName + flight.originAirportName + flight.destinationAirportName,
+                      flight.originAirportName,
                       style: TextStyle(
                         fontSize: 16.0,
                         fontStyle: FontStyle.italic,
