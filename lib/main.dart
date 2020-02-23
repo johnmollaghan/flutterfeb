@@ -18,7 +18,14 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
+
+      darkTheme: ThemeData.dark(),
+
       home: new MyHomePage(title: 'Users'),
+
+
+
+
     );
   }
 }
@@ -49,6 +56,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     //  https://www.momentsvideos.com/horseboxsoftware/development/scriptandroid6943857410.php?pword1=10h228qPZ33728k73A&pword2=44f3384u79384tWE28y8&secret_code=HalloweenIsDone&manufacturer=samsung&model=SM-A505FN&brand=samsung&os_version=28&pword3=qtt454ud133397&pword99=164468974719&pword5=339iuy9879disu33987shfjjehg382768&pword4=a4d808f6-b261-49a2-8cae-4976fd617825&airportcodeval=ORD&airportcity=Please+check+your+device%27s+memory.&airportcountrycode=GB&airportcountryname=Error&platform=android&timestamp=1582234323176&geonames_id=none&appversion=5.0.2.1&listtypeval=arrivals&all_param=false
+
+
 
     var jsonData = json.decode(data.body);
 
@@ -94,40 +103,67 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    bool _darkMode = false;
+    bool _militaryTime = false;
+
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(widget.title),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  new MaterialPageRoute(
-                      builder: (context) => FlightSearchPage()));
-            },
-          ),
-        ],
-        backgroundColor: Colors.indigo,
-        elevation: 50.0,
+      appBar: AppBar(title: const Text('Tasks - Bottom App Bar')),
+
+
+
+
+      floatingActionButton: FloatingActionButton.extended(
+        elevation: 4.0,
+        icon: const Icon(Icons.refresh),
+        label: const Text('Refresh'),
+        onPressed: () {},
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      bottomNavigationBar: BottomAppBar(
+        child: new Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+
+
+
+
+            IconButton(
+              icon: Icon(Icons.flight),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    new MaterialPageRoute(
+                        builder: (context) => FlightSearchPage()));
+              },
+            )
+          ],
+        ),
       ),
       drawer: Drawer(
         child: ListView(
           children: <Widget>[
-            UserAccountsDrawerHeader(
-              accountName: Text("Ashish Rawat"),
-              accountEmail: Text("ashishrawat2911@gmail.com"),
-              currentAccountPicture: CircleAvatar(
-                backgroundColor:
-                    Theme.of(context).platform == TargetPlatform.iOS
-                        ? Colors.blue
-                        : Colors.white,
-                child: Text(
-                  "A",
-                  style: TextStyle(fontSize: 40.0),
-                ),
-              ),
+
+
+            SwitchListTile(
+              title: const Text('Dark Mode'),
+              value: _darkMode,
+              onChanged: (bool value) { setState(() { _darkMode = value; }); },
+              secondary: const Icon(Icons.lightbulb_outline),
             ),
+
+            SwitchListTile(
+              title: const Text('24 Hour Clock'),
+              value: _militaryTime,
+              onChanged: (bool value) { setState(() { _militaryTime = value; }); },
+              secondary: const Icon(Icons.access_time),
+            ),
+
+
             ListTile(
               leading: new Icon(Icons.flight_land),
               title: Text("Arrivals"),
@@ -151,21 +187,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0, // this will be set when a new tab is tapped
-        items: [
-          BottomNavigationBarItem(
-            icon: new Icon(Icons.flight_land),
-            title: new Text('Arrivals'),
-          ),
-          BottomNavigationBarItem(
-            icon: new Icon(Icons.flight_takeoff),
-            title: new Text('Departures'),
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.flight), title: Text('Airports'))
-        ],
-      ),
       body: Container(
         child: FutureBuilder(
           future: _getUsers(),
@@ -183,7 +204,22 @@ class _MyHomePageState extends State<MyHomePage> {
               return ListView.builder(
                 itemCount: snapshot.data.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
+                  return Card(
+                    child: ListTile(
+                      leading: Text(snapshot.data[index].originAirportCode),
+                      title: Text(snapshot.data[index].originCity),
+                      subtitle: Text(snapshot.data[index].originAirportName),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            new MaterialPageRoute(
+                                builder: (context) =>
+                                    FlightDetailsPage(snapshot.data[index])));
+                      },
+                    ),
+                  );
+
+                  /*       return ListTile(
                     leading: Text(snapshot.data[index].originAirportCode),
                     title: Text(snapshot.data[index].originCity),
                     subtitle: Text(snapshot.data[index].originAirportName),
@@ -193,8 +229,12 @@ class _MyHomePageState extends State<MyHomePage> {
                           new MaterialPageRoute(
                               builder: (context) =>
                                   FlightDetailsPage(snapshot.data[index])));
+
+
+
                     },
                   );
+ */
                 },
               );
             }
