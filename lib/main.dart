@@ -18,14 +18,8 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-
       darkTheme: ThemeData.dark(),
-
       home: new MyHomePage(title: 'Users'),
-
-
-
-
     );
   }
 }
@@ -40,14 +34,47 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Future<List<FidsData>> _getUsers() async {
+  String flightType = "arrivals";
+
+  Future<List<FidsData>> myFlights;
+
+  void _refreshFlights() {
+    setState(() {
+      myFlights = _getFlights();
+    });
+  }
+
+  void refreshArrivals() {
+    setState(() {
+      flightType = "arrivals";
+      _refreshFlights();
+    });
+  }
+
+  void refreshDepartures() {
+    setState(() {
+      flightType = "departures";
+      _refreshFlights();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    myFlights = _getFlights();
+  }
+
+  Future<List<FidsData>> _getFlights() async {
     //  var data = await http
     //    .get("http://www.json-generator.com/api/json/get/caGPKvQpaq?indent=2");
 
     var data;
     try {
+      print("REFRESHING LIST");
       data = await http.get(
-          "https://www.momentsvideos.com/horseboxsoftware/development/scriptandroid6943857410.php?pword1=10h228qPZ33728k73A&pword2=44f3384u79384tWE28y8&secret_code=HalloweenIsDone&manufacturer=samsung&model=SM-A505FN&brand=samsung&os_version=28&pword3=qtt454ud133397&pword99=164468974719&pword5=339iuy9879disu33987shfjjehg382768&pword4=a4d808f6-b261-49a2-8cae-4976fd617825&airportcodeval=ORD&airportcity=Please+check+your+device%27s+memory.&airportcountrycode=GB&airportcountryname=Error&platform=android&timestamp=1582234323176&geonames_id=none&appversion=5.0.2.1&listtypeval=arrivals&all_param=false");
+          "https://www.momentsvideos.com/horseboxsoftware/development/scriptandroid6943857410.php?pword1=10h228qPZ33728k73A&pword2=44f3384u79384tWE28y8&secret_code=HalloweenIsDone&manufacturer=samsung&model=SM-A505FN&brand=samsung&os_version=28&pword3=qtt454ud133397&pword99=164468974719&pword5=339iuy9879disu33987shfjjehg382768&pword4=a4d808f6-b261-49a2-8cae-4976fd617825&airportcodeval=CDG&airportcity=Please+check+your+device%27s+memory.&airportcountrycode=GB&airportcountryname=Error&platform=android&timestamp=1582234323176&geonames_id=none&appversion=5.0.2.1&listtypeval=" +
+              flightType +
+              "&all_param=false");
     } catch (_) {
       final snackBar = SnackBar(content: Text('Yay! A SnackBar!'));
 
@@ -56,8 +83,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     //  https://www.momentsvideos.com/horseboxsoftware/development/scriptandroid6943857410.php?pword1=10h228qPZ33728k73A&pword2=44f3384u79384tWE28y8&secret_code=HalloweenIsDone&manufacturer=samsung&model=SM-A505FN&brand=samsung&os_version=28&pword3=qtt454ud133397&pword99=164468974719&pword5=339iuy9879disu33987shfjjehg382768&pword4=a4d808f6-b261-49a2-8cae-4976fd617825&airportcodeval=ORD&airportcity=Please+check+your+device%27s+memory.&airportcountrycode=GB&airportcountryname=Error&platform=android&timestamp=1582234323176&geonames_id=none&appversion=5.0.2.1&listtypeval=arrivals&all_param=false
-
-
 
     var jsonData = json.decode(data.body);
 
@@ -71,6 +96,9 @@ class _MyHomePageState extends State<MyHomePage> {
       FidsData flight = FidsData(
           i["flightId"],
           i["statusCode"],
+          i["gate"],
+          i["terminal"],
+          i["baggage"],
           i["airlineName"],
           i["airlineCode"],
           i["flightNumber"],
@@ -107,30 +135,38 @@ class _MyHomePageState extends State<MyHomePage> {
     bool _militaryTime = false;
 
     return new Scaffold(
-      appBar: AppBar(title: const Text('Tasks - Bottom App Bar')),
-
-
-
-
+      appBar: AppBar(title: const Text("Flight Information")),
       floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Colors.blue,
         elevation: 4.0,
-        icon: const Icon(Icons.refresh),
-        label: const Text('Refresh'),
-        onPressed: () {},
+        icon: const Icon(Icons.refresh, color: Colors.white,),
+        label: const Text('Refresh', style: TextStyle(color: Colors.white),),
+        onPressed: () {
+          _refreshFlights();
+        },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar: BottomAppBar(
+        color: Colors.indigo,
         child: new Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-
-
-
-
             IconButton(
               icon: Icon(Icons.flight),
               onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(Icons.flight_land),
+              onPressed: () {
+                refreshArrivals();
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.flight_takeoff),
+              onPressed: () {
+                refreshDepartures();
+              },
             ),
             IconButton(
               icon: Icon(Icons.search),
@@ -147,23 +183,26 @@ class _MyHomePageState extends State<MyHomePage> {
       drawer: Drawer(
         child: ListView(
           children: <Widget>[
-
-
             SwitchListTile(
               title: const Text('Dark Mode'),
               value: _darkMode,
-              onChanged: (bool value) { setState(() { _darkMode = value; }); },
+              onChanged: (bool value) {
+                setState(() {
+                  _darkMode = value;
+                });
+              },
               secondary: const Icon(Icons.lightbulb_outline),
             ),
-
             SwitchListTile(
               title: const Text('24 Hour Clock'),
               value: _militaryTime,
-              onChanged: (bool value) { setState(() { _militaryTime = value; }); },
+              onChanged: (bool value) {
+                setState(() {
+                  _militaryTime = value;
+                });
+              },
               secondary: const Icon(Icons.access_time),
             ),
-
-
             ListTile(
               leading: new Icon(Icons.flight_land),
               title: Text("Arrivals"),
@@ -189,7 +228,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Container(
         child: FutureBuilder(
-          future: _getUsers(),
+          future: myFlights,
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             print("Query Completed...Error is...");
             print(snapshot.hasError);
@@ -206,9 +245,21 @@ class _MyHomePageState extends State<MyHomePage> {
                 itemBuilder: (BuildContext context, int index) {
                   return Card(
                     child: ListTile(
-                      leading: Text(snapshot.data[index].originAirportCode),
-                      title: Text(snapshot.data[index].originCity),
-                      subtitle: Text(snapshot.data[index].originAirportName),
+                      leading: Text(snapshot.data[index].scheduledTime +
+                          "\n" +
+                          snapshot.data[index].scheduledDate),
+                      //  leading: Text(snapshot.data[index].scheduledTime),
+                      title: Text(
+                        snapshot.data[index].getAirportCity(flightType),
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      subtitle: Text(snapshot.data[index].getAirportName(flightType) +
+                          "\n" +
+                          snapshot.data[index].remarksWithTime +
+                          " - " +
+                          snapshot.data[index].statusCode +
+                          " - " +
+                          snapshot.data[index].remarksCode),
                       onTap: () {
                         Navigator.push(
                             context,

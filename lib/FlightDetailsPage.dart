@@ -46,24 +46,102 @@ class FlightDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
+            Chip(
+              label: Text(
+                flight.remarksWithTime +
+                    " - " +
+                    flight.statusCode +
+                    " - " +
+                    flight.remarksCode,
+                style: TextStyle(color: Colors.white),
+              ),
+              backgroundColor: flight.getStatusColor(),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                Expanded(
+                  child: Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text("SCHEDULED"),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            flight.getScheduledTime(),
+                            style: TextStyle(
+                              fontSize: 30.0,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text("ESTIMATED"),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            flight.getEstimatedTime(),
+                            style: TextStyle(
+                              fontSize: 30.0,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded( child: Card(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text("ACTUAL"),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          flight.getActualTime(),
+                          style: TextStyle(
+                            fontSize: 30.0,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),),
+              ],
+            ),
 
-
-            Chip(label: Text(flight.remarksWithTime)),
 
             Card(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text("ORIGIN AIRPORT - " + flight.originAirportCode),
+                    child: Text("FROM"),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       flight.originCity,
                       style: TextStyle(
-                        fontSize: 20.0,
+                        fontSize: 30.0,
                       ),
                     ),
                   ),
@@ -82,19 +160,18 @@ class FlightDetailsPage extends StatelessWidget {
             ),
             Card(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                        "ORIGIN AIRPORT - " + flight.destinationAirportCode),
+                    child: Text("TO"),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       flight.destinationCity,
                       style: TextStyle(
-                        fontSize: 20.0,
+                        fontSize: 30.0,
                       ),
                     ),
                   ),
@@ -111,11 +188,84 @@ class FlightDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Expanded(
+                  child: Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text("TERMINAL"),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            flight.getTerminal(),
+                            style: TextStyle(
+                              fontSize: 30.0,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text("GATE"),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            flight.getGate(),
+                            style: TextStyle(
+                              fontSize: 30.0,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text("BAGGAGE"),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            flight.getBaggage(),
+                            style: TextStyle(
+                              fontSize: 30.0,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
           ],
         ),
         appBar: AppBar(
           title: Text(flight.airlineName + " " + flight.flightNumber),
-          backgroundColor: Colors.lightGreen,
+          backgroundColor: flight.getStatusColor(),
           elevation: 50.0,
         ));
   }
