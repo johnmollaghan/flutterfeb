@@ -1,12 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'Airport.dart';
 import 'FidsData.dart';
 import 'FlightDetailsPage.dart';
 import 'FlightSearchPage.dart';
+
+SplayTreeMap airportList = new SplayTreeMap<String, Airport>();
 
 void main() => runApp(new MyApp());
 
@@ -16,7 +20,7 @@ class MyApp extends StatelessWidget {
     return new MaterialApp(
       title: 'Flutter Demo',
       theme: new ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.red,
       ),
       darkTheme: ThemeData.dark(),
       home: new MyHomePage(title: 'Users'),
@@ -35,6 +39,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String flightType = "arrivals";
+
+  var launchTime;
 
   Future<List<FidsData>> myFlights;
 
@@ -58,10 +64,65 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future<String> futureGetAirportList() async {
+    String data = await DefaultAssetBundle.of(context)
+        .loadString("assets/combined_airports.json");
+
+    var jsonData = json.decode(data);
+
+    int x = 0;
+    for (var i in jsonData) {
+      print("Adding Airport - " + i.toString());
+      Airport airport = new Airport(
+          i["fs"],
+          i["name"],
+          i["city"],
+          i["countryCode"],
+          i["timeZoneRegionName"],
+          i["latitude"],
+          i["longitude"],
+          i["name_ar"],
+          i["city_ar"],
+          i["name_de"],
+          i["city_de"],
+          i["name_es"],
+          i["city_es"],
+          i["name_fr"],
+          i["city_fr"],
+          i["name_ja"],
+          i["city_ja"],
+          i["name_ko"],
+          i["city_ko"],
+          i["name_pt"],
+          i["city_pt"],
+          i["name_zh"],
+          i["city_zh"]);
+
+      airportList[i["fs"]] =  airport;
+    }
+
+    print("JM_LOG - loadString completed");
+
+    setState(() {
+      myFlights = _getFlights();
+    });
+
+    // final jsonResult = json.decode(data);
+
+    return data.substring(0, 50);
+  }
+
   @override
   void initState() {
     super.initState();
-    myFlights = _getFlights();
+
+    launchTime = new DateTime.now().millisecondsSinceEpoch;
+
+    //   var result = Future.wait(loadAsset());
+
+    var futures = List<Future>();
+
+    futureGetAirportList();
   }
 
   Future<List<FidsData>> _getFlights() async {
@@ -139,8 +200,14 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Colors.blue,
         elevation: 4.0,
-        icon: const Icon(Icons.refresh, color: Colors.white,),
-        label: const Text('Refresh', style: TextStyle(color: Colors.white),),
+        icon: const Icon(
+          Icons.refresh,
+          color: Colors.white,
+        ),
+        label: const Text(
+          'Refresh',
+          style: TextStyle(color: Colors.white),
+        ),
         onPressed: () {
           _refreshFlights();
         },
@@ -231,9 +298,6 @@ class _MyHomePageState extends State<MyHomePage> {
           future: myFlights,
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             print("Query Completed...Error is...");
-            print(snapshot.hasError);
-            print(snapshot.error);
-            print(snapshot.data);
             if (snapshot.data == null) {
               return Container(
                   child: Center(
@@ -250,16 +314,21 @@ class _MyHomePageState extends State<MyHomePage> {
                           snapshot.data[index].scheduledDate),
                       //  leading: Text(snapshot.data[index].scheduledTime),
                       title: Text(
-                        snapshot.data[index].getAirportCity(flightType),
+                     //  airportList[snapshot.data[index].getAirportCode(flightType)].city_zh ,
+
+
+                            snapshot.data[index].getAirportCity(flightType),
                         style: TextStyle(fontSize: 20),
                       ),
-                      subtitle: Text(snapshot.data[index].getAirportName(flightType) +
-                          "\n" +
-                          snapshot.data[index].remarksWithTime +
-                          " - " +
-                          snapshot.data[index].statusCode +
-                          " - " +
-                          snapshot.data[index].remarksCode),
+                      subtitle: Text(
+
+                          snapshot.data[index].getAirportName(flightType) +
+                              "\n" +
+                              snapshot.data[index].remarksWithTime +
+                              " - " +
+                              snapshot.data[index].statusCode +
+                              " - " +
+                              snapshot.data[index].remarksCode),
                       onTap: () {
                         Navigator.push(
                             context,

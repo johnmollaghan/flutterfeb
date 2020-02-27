@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'FlightTimeWidget.dart';
 
 import 'FidsData.dart';
 
@@ -13,39 +14,7 @@ class FlightDetailsPage extends StatelessWidget {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  Container(
-                    child: Column(
-                      children: <Widget>[
-                        Text("FROM"),
-                        Text(
-                          flight.originAirportCode,
-                          style: TextStyle(
-                              fontSize: 40.0, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(Icons.arrow_forward),
-                  Container(
-                    child: Column(
-                      children: <Widget>[
-                        Text("TO"),
-                        Text(
-                          flight.destinationAirportCode,
-                          style: TextStyle(
-                              fontSize: 40.0, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            topRowDetails(flight: flight),
             Chip(
               label: Text(
                 flight.remarksWithTime +
@@ -57,77 +26,7 @@ class FlightDetailsPage extends StatelessWidget {
               ),
               backgroundColor: flight.getStatusColor(),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                Expanded(
-                  child: Card(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text("SCHEDULED"),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            flight.getScheduledTime(),
-                            style: TextStyle(
-                              fontSize: 30.0,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Card(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text("ESTIMATED"),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            flight.getEstimatedTime(),
-                            style: TextStyle(
-                              fontSize: 30.0,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Expanded( child: Card(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text("ACTUAL"),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          flight.getActualTime(),
-                          style: TextStyle(
-                            fontSize: 30.0,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),),
-              ],
-            ),
-
-
+            FlightTimeWidget(flight: flight),
             Card(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -188,7 +87,6 @@ class FlightDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -260,7 +158,6 @@ class FlightDetailsPage extends StatelessWidget {
                 ),
               ],
             ),
-
           ],
         ),
         appBar: AppBar(
@@ -268,5 +165,53 @@ class FlightDetailsPage extends StatelessWidget {
           backgroundColor: flight.getStatusColor(),
           elevation: 50.0,
         ));
+  }
+}
+
+
+
+class topRowDetails extends StatelessWidget {
+  const topRowDetails({
+    Key key,
+    @required this.flight,
+  }) : super(key: key);
+
+  final FidsData flight;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          Container(
+            child: Column(
+              children: <Widget>[
+                Text("FROM"),
+                Text(
+                  flight.originAirportCode,
+                  style: TextStyle(
+                      fontSize: 40.0, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.arrow_forward),
+          Container(
+            child: Column(
+              children: <Widget>[
+                Text("TO"),
+                Text(
+                  flight.destinationAirportCode,
+                  style: TextStyle(
+                      fontSize: 40.0, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
