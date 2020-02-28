@@ -8,10 +8,26 @@ class FlightSearchPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      body: Container(
+        child: Column(
+          children: <Widget>[
+            TextFormField(
+              decoration: InputDecoration(
+                labelText: "Flight Number",
+                icon: Icon(Icons.person),
+                border: UnderlineInputBorder(),
+                filled: true,
+                hintText: "",
+              ),
+
+            )
+          ],
+        ),
+      ),
         appBar: AppBar(
           title:
           Text("Flight Search"),
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.amber,
           elevation: 50.0,
         ));
   }

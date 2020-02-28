@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:flutterfeb/AirportPickerPage.dart';
 import 'package:http/http.dart' as http;
 
 import 'Airport.dart';
@@ -205,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
           color: Colors.white,
         ),
         label: const Text(
-          'Refresh',
+          'Reload',
           style: TextStyle(color: Colors.white),
         ),
         onPressed: () {
@@ -220,8 +221,13 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             IconButton(
-              icon: Icon(Icons.flight),
-              onPressed: () {},
+              icon: Icon(Icons.account_balance),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    new MaterialPageRoute(
+                        builder: (context) => AirportPickerPage()));
+              },
             ),
             IconButton(
               icon: Icon(Icons.flight_land),
