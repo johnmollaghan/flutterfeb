@@ -34,7 +34,6 @@ class MyHomePage extends StatefulWidget {
 
   final String title;
 
-
   @override
   _MyHomePageState createState() => new _MyHomePageState();
 }
@@ -52,7 +51,6 @@ class _MyHomePageState extends State<MyHomePage> {
   var errorString = "";
 
   void _refreshFlights() {
-
     setState(() {
       isLoading = true;
     });
@@ -63,16 +61,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void refreshArrivals() {
-
-      flightType = "arrivals";
-      _refreshFlights();
+    flightType = "arrivals";
+    _refreshFlights();
   }
 
   void refreshDepartures() {
-
-      flightType = "departures";
-      _refreshFlights();
-
+    flightType = "departures";
+    _refreshFlights();
   }
 
   Future<String> futureGetAirportList() async {
@@ -83,7 +78,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     int x = 0;
     for (var i in jsonData) {
-      print("Adding Airport - " + i.toString());
       Airport airport = new Airport(
           i["fs"],
           i["name"],
@@ -109,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
           i["name_zh"],
           i["city_zh"]);
 
-      airportList[i["fs"]] =  airport;
+      airportList[i["fs"]] = airport;
     }
 
     setState(() {
@@ -143,59 +137,55 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       print("REFRESHING LIST");
 
-      var queryUrl = "https://www.momentsvideos.com/horseboxsoftware/development/scriptandroid6943857410.php?pword1=10h228qPZ33728k73A&pword2=44f3384u79384tWE28y8&secret_code=HalloweenIsDone&manufacturer=samsung&model=SM-A505FN&brand=samsung&os_version=28&pword3=qtt454ud133397&pword99=164468974719&pword5=339iuy9879disu33987shfjjehg382768&pword4=a4d808f6-b261-49a2-8cae-4976fd617825&airportcodeval=CDG&airportcity=Please+check+your+device%27s+memory.&airportcountrycode=GB&airportcountryname=Error&platform=android&timestamp=1582234323176&geonames_id=none&appversion=5.0.2.1&listtypeval=";
+      var queryUrl =
+          "https://www.momentsvideos.com/horseboxsoftware/development/scriptandroid6943857410.php?pword1=10h228qPZ33728k73A&pword2=44f3384u79384tWE28y8&secret_code=HalloweenIsDone&manufacturer=samsung&model=SM-A505FN&brand=samsung&os_version=28&pword3=qtt454ud133397&pword99=164468974719&pword5=339iuy9879disu33987shfjjehg382768&pword4=a4d808f6-b261-49a2-8cae-4976fd617825&airportcodeval=CDG&airportcity=Please+check+your+device%27s+memory.&airportcountrycode=GB&airportcountryname=Error&platform=android&timestamp=1582234323176&geonames_id=none&appversion=5.0.2.1&listtypeval=";
 
-      data = await http.get(
-          queryUrl +
-              flightType +
-              "&all_param=false");
+      data = await http.get(queryUrl + flightType + "&all_param=false");
       isError = false;
       errorString = "";
       isLoading = false;
 
-    //  https://www.momentsvideos.com/horseboxsoftware/development/scriptandroid6943857410.php?pword1=10h228qPZ33728k73A&pword2=44f3384u79384tWE28y8&secret_code=HalloweenIsDone&manufacturer=samsung&model=SM-A505FN&brand=samsung&os_version=28&pword3=qtt454ud133397&pword99=164468974719&pword5=339iuy9879disu33987shfjjehg382768&pword4=a4d808f6-b261-49a2-8cae-4976fd617825&airportcodeval=ORD&airportcity=Please+check+your+device%27s+memory.&airportcountrycode=GB&airportcountryname=Error&platform=android&timestamp=1582234323176&geonames_id=none&appversion=5.0.2.1&listtypeval=arrivals&all_param=false
+      //  https://www.momentsvideos.com/horseboxsoftware/development/scriptandroid6943857410.php?pword1=10h228qPZ33728k73A&pword2=44f3384u79384tWE28y8&secret_code=HalloweenIsDone&manufacturer=samsung&model=SM-A505FN&brand=samsung&os_version=28&pword3=qtt454ud133397&pword99=164468974719&pword5=339iuy9879disu33987shfjjehg382768&pword4=a4d808f6-b261-49a2-8cae-4976fd617825&airportcodeval=ORD&airportcity=Please+check+your+device%27s+memory.&airportcountrycode=GB&airportcountryname=Error&platform=android&timestamp=1582234323176&geonames_id=none&appversion=5.0.2.1&listtypeval=arrivals&all_param=false
 
-    var jsonData = json.decode(data.body);
+      var jsonData = json.decode(data.body);
 
-    var appList = jsonData["fidsData"];
+      var appList = jsonData["fidsData"];
 
-    print('jsonData["applist"]');
+      print('jsonData["applist"]');
 
+      for (var i in jsonData["fidsData"]) {
+        FidsData flight = FidsData(
+            i["flightId"],
+            i["statusCode"],
+            i["gate"],
+            i["terminal"],
+            i["baggage"],
+            i["airlineName"],
+            i["airlineCode"],
+            i["flightNumber"],
+            i["originAirportName"],
+            i["originAirportCode"],
+            i["originCity"],
+            i["originCountryCode"],
+            i["destinationAirportName"],
+            i["destinationAirportCode"],
+            i["destinationCity"],
+            i["destinationCountryCode"],
+            i["delayed"],
+            i["remarksWithTime"],
+            i["remarksCode"],
+            i["scheduledTime"],
+            i["scheduledDate"],
+            i["estimatedTime"],
+            i["estimatedDate"],
+            i["actualTime"],
+            i["actualDate"]);
 
+        flightsList.add(flight);
+      }
 
-    for (var i in jsonData["fidsData"]) {
-      FidsData flight = FidsData(
-          i["flightId"],
-          i["statusCode"],
-          i["gate"],
-          i["terminal"],
-          i["baggage"],
-          i["airlineName"],
-          i["airlineCode"],
-          i["flightNumber"],
-          i["originAirportName"],
-          i["originAirportCode"],
-          i["originCity"],
-          i["originCountryCode"],
-          i["destinationAirportName"],
-          i["destinationAirportCode"],
-          i["destinationCity"],
-          i["destinationCountryCode"],
-          i["delayed"],
-          i["remarksWithTime"],
-          i["remarksCode"],
-          i["scheduledTime"],
-          i["scheduledDate"],
-          i["estimatedTime"],
-          i["estimatedDate"],
-          i["actualTime"],
-          i["actualDate"]);
-
-      flightsList.add(flight);
-    }
-
-    print("Number of Flights = ");
-    print(flightsList.length);
+      print("Number of Flights = ");
+      print(flightsList.length);
     } catch (exception) {
       isLoading = false;
       isError = true;
@@ -204,7 +194,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     return flightsList;
-
   }
 
   @override
@@ -226,7 +215,11 @@ class _MyHomePageState extends State<MyHomePage> {
           style: TextStyle(color: Colors.white),
         ),
         onPressed: () {
-          _refreshFlights();
+          if (!isLoading) {
+            print("Reload Button Pressed");
+            _refreshFlights();
+          }
+          else {null;}
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
@@ -237,40 +230,52 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             IconButton(
-              icon: Icon(Icons.account_balance),
+              icon: Icon(Icons.flight),
+
               onPressed: () {
-                Navigator.push(
-                    context,
-                    new MaterialPageRoute(
-                        builder: (context) => AirportPickerPage()));
+                if (!isLoading) {
+                  print("Airport Button Pressed");
+                  Navigator.push(
+                      context,
+                      new MaterialPageRoute(
+                          builder: (context) => AirportPickerPage()));
+                }
+                else {null;}
               },
             ),
             IconButton(
               icon: Icon(Icons.flight_land),
               onPressed: () {
-                refreshArrivals();
+                if (!isLoading) {
+                  print("Arrivals Button Pressed");
+                  refreshArrivals();
+                }
+                else {
+                  null;
+                }
               },
             ),
             IconButton(
               icon: Icon(Icons.flight_takeoff),
               onPressed: () {
-                refreshDepartures();
+                if (!isLoading) {
+                  print("Departures Button Pressed");
+                  refreshDepartures();
+                }
+                else {null;}
               },
             ),
             IconButton(
               icon: Icon(Icons.search),
               onPressed: () async {
-
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => FlightSearchPage()),
-                );
-
-                // After the Selection Screen returns a result, hide any previous snackbars
-                // and show the new result.
-                Scaffold.of(context)
-                  ..removeCurrentSnackBar()
-                  ..showSnackBar(SnackBar(content: Text("$result")));
+                if (!isLoading) {
+                  print("Flight Search Button Pressed");
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => FlightSearchPage()),
+                  );
+                }
+                else {null;}
               },
             )
           ],
@@ -331,21 +336,31 @@ class _MyHomePageState extends State<MyHomePage> {
             if (isLoading == false && isError) {
               return Container(
                   child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        children: <Widget>[
-                          SizedBox(height: 30,),
-                          Icon(Icons.error_outline, size: 80,),
-                          SizedBox(height: 30,),
-                          Text(
-                              "There was an error...",),
-                          SizedBox(height: 30,),
-                          Text(errorString),
-                        ],
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: 30,
                       ),
-                    ),
-                  ));
+                      Icon(
+                        Icons.error_outline,
+                        size: 80,
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Text(
+                        "There was an error...",
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Text(errorString),
+                    ],
+                  ),
+                ),
+              ));
             }
 
             if (isLoading == true) {
@@ -364,14 +379,12 @@ class _MyHomePageState extends State<MyHomePage> {
                           snapshot.data[index].scheduledDate),
                       //  leading: Text(snapshot.data[index].scheduledTime),
                       title: Text(
-                     //  airportList[snapshot.data[index].getAirportCode(flightType)].city_zh ,
+                        //  airportList[snapshot.data[index].getAirportCode(flightType)].city_zh ,
 
-
-                            snapshot.data[index].getAirportCity(flightType),
+                        snapshot.data[index].getAirportCity(flightType),
                         style: TextStyle(fontSize: 20),
                       ),
                       subtitle: Text(
-
                           snapshot.data[index].getAirportName(flightType) +
                               "\n" +
                               snapshot.data[index].remarksWithTime +
