@@ -10,6 +10,7 @@ import 'Airport.dart';
 import 'FidsData.dart';
 import 'FlightDetailsPage.dart';
 import 'FlightSearchPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 SplayTreeMap airportList = new SplayTreeMap<String, Airport>();
 
@@ -40,6 +41,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String flightType = "arrivals";
+
+  String searchGate;
+  String searchBag;
+  String searchCity;
+  String searchFlightNumber;
+  String searchTerminal;
+  bool isFiltered = false;
 
   var launchTime;
 
@@ -119,6 +127,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
+    restoreSearchConditions();
+
     launchTime = new DateTime.now().millisecondsSinceEpoch;
 
     //   var result = Future.wait(loadAsset());
@@ -126,6 +136,23 @@ class _MyHomePageState extends State<MyHomePage> {
     var futures = List<Future>();
 
     futureGetAirportList();
+  }
+
+  restoreSearchConditions() async {
+    print("### Restore Search Conditions");
+    final prefs = await SharedPreferences.getInstance();
+
+    this.searchGate = prefs.getString('searchGate') ?? "";
+    this.searchBag = prefs.getString('searchBag') ?? "";
+    this.searchCity = prefs.getString('searchCity') ?? "";
+    this.searchFlightNumber = prefs.getString('searchFlightNumber') ?? "";
+    this.searchTerminal = prefs.getString('searchTerminal') ?? "";
+
+    this.isFiltered = searchGate.length > 0 ||
+        searchBag.length > 0 ||
+        searchCity.length > 0 ||
+        searchFlightNumber.length > 0 ||
+        searchTerminal.length > 0;
   }
 
   Future<List<FidsData>> _getFlights() async {
@@ -153,7 +180,44 @@ class _MyHomePageState extends State<MyHomePage> {
 
       print('jsonData["applist"]');
 
+      print("### Reloading, Filtered = " + isFiltered.toString());
+
       for (var i in jsonData["fidsData"]) {
+        if (isFiltered) {
+          if (searchTerminal.length > 0 &&
+              (i["terminal"].toString().toLowerCase()).contains(searchTerminal) == false) {
+            continue;
+          }
+
+          if (searchFlightNumber.length > 0 &&
+              (i["airlineCode"].toString().toLowerCase() + i["flightNumber"].toString().toLowerCase()).toString().contains(searchFlightNumber) ==
+                  false) {
+            continue;
+          }
+
+          if (searchCity.length > 0) {
+            if (flightType == "arrivals") {
+              if (i["originCity"].toString().toLowerCase().contains(searchCity) == false) {
+                continue;
+              }
+            } else {
+              if (i["destinationCity"].toString().toLowerCase().contains(searchCity) == false) {
+                continue;
+              }
+            }
+          }
+
+          if (searchBag.length > 0 &&
+              (i["baggage"].toString().toLowerCase()).contains(searchBag) == false) {
+            continue;
+          }
+
+          if (searchGate.length > 0 &&
+              (i["gate"].toString().toLowerCase()).contains(searchGate) == false) {
+            continue;
+          }
+        }
+
         FidsData flight = FidsData(
             i["flightId"],
             i["statusCode"],
@@ -218,8 +282,9 @@ class _MyHomePageState extends State<MyHomePage> {
           if (!isLoading) {
             print("Reload Button Pressed");
             _refreshFlights();
+          } else {
+            null;
           }
-          else {null;}
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
@@ -231,7 +296,6 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             IconButton(
               icon: Icon(Icons.flight),
-
               onPressed: () {
                 if (!isLoading) {
                   print("Airport Button Pressed");
@@ -239,8 +303,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       context,
                       new MaterialPageRoute(
                           builder: (context) => AirportPickerPage()));
+                } else {
+                  null;
                 }
-                else {null;}
               },
             ),
             IconButton(
@@ -249,8 +314,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 if (!isLoading) {
                   print("Arrivals Button Pressed");
                   refreshArrivals();
-                }
-                else {
+                } else {
                   null;
                 }
               },
@@ -261,8 +325,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 if (!isLoading) {
                   print("Departures Button Pressed");
                   refreshDepartures();
+                } else {
+                  null;
                 }
-                else {null;}
               },
             ),
             IconButton(
@@ -274,8 +339,16 @@ class _MyHomePageState extends State<MyHomePage> {
                     context,
                     MaterialPageRoute(builder: (context) => FlightSearchPage()),
                   );
+
+                  if (result == "Search") {
+                    setState(() {
+                      restoreSearchConditions();
+                      _refreshFlights();
+                    });
+                  }
+                } else {
+                  null;
                 }
-                else {null;}
               },
             )
           ],
@@ -284,6 +357,26 @@ class _MyHomePageState extends State<MyHomePage> {
       drawer: Drawer(
         child: ListView(
           children: <Widget>[
+            Container(
+                color: Colors.indigo,
+                child: Padding(
+                  padding: const EdgeInsets.all(30.0),
+                  child: Icon(
+                    Icons.flight,
+                    size: 80,
+                  ),
+                )),
+            SwitchListTile(
+              title: const Text('Compact Mode'),
+              value: _darkMode,
+              onChanged: (bool value) {
+                setState(() {});
+              },
+              secondary: const Icon(Icons.lightbulb_outline),
+            ),
+            Divider(
+              color: Colors.amber,
+            ),
             SwitchListTile(
               title: const Text('Dark Mode'),
               value: _darkMode,
@@ -322,7 +415,15 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ListTile(
               leading: new Icon(Icons.email),
-              title: Text("Contact Develop"),
+              title: Text("Contact Developer"),
+            ),
+            ListTile(
+              leading: new Icon(Icons.share),
+              title: Text("Share this App"),
+            ),
+            ListTile(
+              leading: new Icon(Icons.rate_review),
+              title: Text("Rate this App"),
             ),
           ],
         ),
@@ -374,9 +475,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 itemBuilder: (BuildContext context, int index) {
                   return Card(
                     child: ListTile(
-                      leading: Text(snapshot.data[index].scheduledTime +
+                      leading: Text(snapshot.data[index].getScheduledTime() +
                           "\n" +
-                          snapshot.data[index].scheduledDate),
+                          snapshot.data[index].getScheduledDate()),
                       //  leading: Text(snapshot.data[index].scheduledTime),
                       title: Text(
                         //  airportList[snapshot.data[index].getAirportCode(flightType)].city_zh ,
@@ -387,11 +488,20 @@ class _MyHomePageState extends State<MyHomePage> {
                       subtitle: Text(
                           snapshot.data[index].getAirportName(flightType) +
                               "\n" +
-                              snapshot.data[index].remarksWithTime +
+                              snapshot.data[index].getRemarksWithTime() +
                               " - " +
-                              snapshot.data[index].statusCode +
+                              snapshot.data[index].getStatusCode() +
                               " - " +
-                              snapshot.data[index].remarksCode),
+
+                              "bag " + snapshot.data[index].getBaggage() +
+                              " - " +
+
+                              "gate " + snapshot.data[index].getGate() +
+                              " - " +
+
+                              snapshot.data[index].getAirlineCode() +
+                              " - " +
+                              snapshot.data[index].getRemarksCode()),
                       onTap: () {
                         Navigator.push(
                             context,

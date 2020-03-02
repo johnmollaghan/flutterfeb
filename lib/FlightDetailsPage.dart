@@ -18,11 +18,11 @@ class FlightDetailsPage extends StatelessWidget {
               topRowDetails(flight: flight),
               Chip(
                 label: Text(
-                  flight.remarksWithTime +
+                  flight.getRemarksWithTime() +
                       " - " +
-                      flight.statusCode +
+                      flight.getStatusCode() +
                       " - " +
-                      flight.remarksCode,
+                      flight.getRemarksCode(),
                   style: TextStyle(color: Colors.white),
                 ),
                 backgroundColor: flight.getStatusColor(),
@@ -39,7 +39,7 @@ class FlightDetailsPage extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        flight.originCity,
+                        flight.getOriginCity(),
                         style: TextStyle(
                           fontSize: 30.0,
                         ),
@@ -48,7 +48,7 @@ class FlightDetailsPage extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        flight.originAirportName,
+                        flight.getOriginAirportName(),
                         style: TextStyle(
                           fontSize: 16.0,
                           fontStyle: FontStyle.italic,
@@ -69,7 +69,7 @@ class FlightDetailsPage extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        flight.destinationCity,
+                        flight.getDestinationCity(),
                         style: TextStyle(
                           fontSize: 30.0,
                         ),
@@ -78,7 +78,7 @@ class FlightDetailsPage extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        flight.destinationAirportName,
+                        flight.getDestinationAirportName(),
                         style: TextStyle(
                           fontSize: 16.0,
                           fontStyle: FontStyle.italic,
@@ -163,7 +163,7 @@ class FlightDetailsPage extends StatelessWidget {
           ),
         ),
         appBar: AppBar(
-          title: Text(flight.airlineName + " " + flight.flightNumber),
+          title: Text(flight.getAirlineName() + " " + flight.getAirlineCode() + flight.getFlightNumber()),
           backgroundColor: flight.getStatusColor(),
           elevation: 50.0,
         ));
@@ -192,7 +192,7 @@ class topRowDetails extends StatelessWidget {
               children: <Widget>[
                 Text("FROM"),
                 Text(
-                  flight.originAirportCode,
+                  flight.getOriginAirportCode(),
                   style: TextStyle(
                       fontSize: 40.0, fontWeight: FontWeight.bold),
                 ),
@@ -205,7 +205,7 @@ class topRowDetails extends StatelessWidget {
               children: <Widget>[
                 Text("TO"),
                 Text(
-                  flight.destinationAirportCode,
+                  flight.getDestinationAirportCode(),
                   style: TextStyle(
                       fontSize: 40.0, fontWeight: FontWeight.bold),
                 ),

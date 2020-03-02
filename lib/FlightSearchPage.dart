@@ -21,21 +21,21 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
   TextEditingController textFlightNumberController = TextEditingController();
   TextEditingController textTerminalController = TextEditingController();
 
-  saveSettings() async {
+  saveSearchConditions() async {
     print("saving settings");
     final prefs = await SharedPreferences.getInstance();
 
 // set value
-    prefs.setString('searchGate', this.searchGate);
-    prefs.setString('searchBag', this.searchBag);
-    prefs.setString('searchCity', this.searchCity);
-    prefs.setString('searchFlightNumber', this.searchFlightNumber);
-    prefs.setString('searchTerminal', this.searchTerminal);
+    prefs.setString('searchGate', this.searchGate.trim().toLowerCase());
+    prefs.setString('searchBag', this.searchBag.trim().toLowerCase());
+    prefs.setString('searchCity', this.searchCity.trim().toLowerCase());
+    prefs.setString('searchFlightNumber', this.searchFlightNumber.trim().toLowerCase().replaceAll(" ", ""));
+    prefs.setString('searchTerminal', this.searchTerminal.trim().toLowerCase());
 
     print("jm_log setting flight number to - " + this.searchFlightNumber);
   }
 
-  restore() async {
+  restoreSearchConditions() async {
     print("restore");
     final prefs = await SharedPreferences.getInstance();
 
@@ -48,9 +48,9 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
     textGateController.text = prefs.getString('searchGate') ?? "";
     textBagController.text = prefs.getString('searchBag') ?? "";
     textCityController.text = prefs.getString('searchCity') ?? "";
-    textFlightNumberController.text = prefs.getString('searchFlightNumber') ?? "";
+    textFlightNumberController.text =
+        prefs.getString('searchFlightNumber') ?? "";
     textTerminalController.text = prefs.getString('searchTerminal') ?? "";
-
 
     print("Flight number = " + this.searchFlightNumber);
   }
@@ -61,12 +61,14 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
 
     print("init state");
     setState(() {
-      restore();
+      restoreSearchConditions();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+
+    bool isFilterEnabled = false;
     return Scaffold(
         body: SingleChildScrollView(
           child: Container(
@@ -78,8 +80,7 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
                     height: 24.0,
                   ),
 
-
-
+                
                   TextFormField(
                     controller: textFlightNumberController,
                     decoration: InputDecoration(
@@ -165,11 +166,11 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
                     child: Text("Search"),
                     onPressed: () {
                       FutureBuilder<dynamic>(
-                          future: saveSettings(),
+                          future: saveSearchConditions(),
                           builder: (context, snapshot) {
                             print('In Builder');
                           });
-                      Navigator.pop(context, 'Yep!');
+                      Navigator.pop(context, 'Search');
                     },
                   )
                 ],
@@ -181,37 +182,30 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
           title: Text("Flight Search"),
           backgroundColor: Colors.amber,
           elevation: 50.0,
-
           actions: <Widget>[
             Padding(
                 padding: EdgeInsets.only(right: 20.0),
                 child: GestureDetector(
                   onTap: () {
                     FutureBuilder<dynamic>(
-                        future: saveSettings(),
+                        future: saveSearchConditions(),
                         builder: (context, snapshot) {
                           print('In Builder');
                         });
                     Navigator.pop(context, 'Yep!');
-
                   },
                   child: Icon(
                     Icons.search,
                     size: 26.0,
                   ),
-                )
-            ),
+                )),
             Padding(
                 padding: EdgeInsets.only(right: 20.0),
                 child: GestureDetector(
                   onTap: () {},
-                  child: Icon(
-                      Icons.more_vert
-                  ),
-                )
-            ),
+                  child: Icon(Icons.more_vert),
+                )),
           ],
-
         ));
   }
 }

@@ -3,155 +3,252 @@ import 'package:flutter/material.dart';
 import "main.dart";
 
 class FidsData {
-  String flightId;
-  String statusCode;
-  String gate;
-  String terminal;
-  String baggage;
-  String airlineName;
-  String airlineCode;
-  String flightNumber;
-  String originAirportName;
-  String originAirportCode;
-  String originCity;
-  String originCountryCode;
-  String destinationAirportName;
-  String destinationAirportCode;
-  String destinationCity;
-  String destinationCountryCode;
-  bool delayed;
-  String remarksWithTime;
-  String remarksCode;
-  String scheduledTime;
-  String scheduledDate;
-  String estimatedTime;
-  String estimatedDate;
-  String actualTime;
-  String actualDate;
-  List<String> codesharesAsNames;
-  List<String> codesharesAsCodes;
+  String _flightId;
+  String _statusCode;
+  String _gate;
+  String _terminal;
+  String _baggage;
+  String _airlineName;
+  String _airlineCode;
+  String _flightNumber;
+  String _originAirportName;
+  String _originAirportCode;
+  String _originCity;
+  String _originCountryCode;
+  String _destinationAirportName;
+  String _destinationAirportCode;
+  String _destinationCity;
+  String _destinationCountryCode;
+  bool _delayed;
+  String _remarksWithTime;
+  String _remarksCode;
+  String _scheduledTime;
+  String _scheduledDate;
+  String _estimatedTime;
+  String _estimatedDate;
+  String _actualTime;
+  String _actualDate;
+  List<String> _codesharesAsNames;
+  List<String> _codesharesAsCodes;
 
   FidsData(
-      this.flightId,
-      this.statusCode,
-      this.gate,
-      this.terminal,
-      this.baggage,
-      this.airlineName,
-      this.airlineCode,
-      this.flightNumber,
-      this.originAirportName,
-      this.originAirportCode,
-      this.originCity,
-      this.originCountryCode,
-      this.destinationAirportName,
-      this.destinationAirportCode,
-      this.destinationCity,
-      this.destinationCountryCode,
-      this.delayed,
-      this.remarksWithTime,
-      this.remarksCode,
-      this.scheduledTime,
-      this.scheduledDate,
-      this.estimatedTime,
-      this.estimatedDate,
-      this.actualTime,
-      this.actualDate
+      this._flightId,
+      this._statusCode,
+      this._gate,
+      this._terminal,
+      this._baggage,
+      this._airlineName,
+      this._airlineCode,
+      this._flightNumber,
+      this._originAirportName,
+      this._originAirportCode,
+      this._originCity,
+      this._originCountryCode,
+      this._destinationAirportName,
+      this._destinationAirportCode,
+      this._destinationCity,
+      this._destinationCountryCode,
+      this._delayed,
+      this._remarksWithTime,
+      this._remarksCode,
+      this._scheduledTime,
+      this._scheduledDate,
+      this._estimatedTime,
+      this._estimatedDate,
+      this._actualTime,
+      this._actualDate
       /*this.codesharesAsNames,
       this.codesharesAsCodes
       */
       );
 
   String getActualDate() {
-    if (actualDate == null) {
+    if (_actualDate == null) {
       return "-";
     } else {
-      return actualDate;
+      return _actualDate;
+    }
+  }
+  String getRemarksCode() {
+    if (_remarksCode == null) {
+      return "-";
+    } else {
+      return _remarksCode;
     }
   }
 
-  String getActualTime() {
-    if (actualTime == null) {
+  String getOriginCity() {
+    if (_originCity == null) {
       return "-";
     } else {
-      return actualTime;
+      return _originCity;
+    }
+  }
+
+  String getAirlineName() {
+    if (_airlineName == null) {
+      return "-";
+    } else {
+      return _airlineName;
+    }
+  }
+
+  String getOriginAirportName() {
+    if (_originAirportName == null) {
+      return "-";
+    } else {
+      return _originAirportName;
+    }
+  }
+
+  String getOriginAirportCode() {
+    if (_originAirportCode == null) {
+      return "-";
+    } else {
+      return _originAirportCode;
+    }
+  }
+
+  String getDestinationCity() {
+    if (_destinationCity == null) {
+      return "-";
+    } else {
+      return _destinationCity;
+    }
+  }
+
+  String getDestinationAirportName() {
+    if (_destinationAirportName == null) {
+      return "-";
+    } else {
+      return _destinationAirportName;
+    }
+  }
+
+  String getDestinationAirportCode() {
+    if (_destinationAirportCode == null) {
+      return "-";
+    } else {
+      return _destinationAirportCode;
+    }
+  }
+
+  String getRemarksWithTime() {
+    if (_remarksWithTime == null) {
+      return "-";
+    } else {
+      return _remarksWithTime;
+    }
+  }
+
+  String getStatusCode() {
+    if (_statusCode == null) {
+      return "-";
+    } else {
+      return _statusCode;
+    }
+  }
+  
+  
+  String getAirlineCode() {
+    if (_airlineCode == null) {
+      return "-";
+    } else {
+      return _airlineCode;
+    }
+  }
+
+  String getFlightNumber() {
+    if (_flightNumber == null) {
+      return "-";
+    } else {
+      return _flightNumber;
+    }
+  }
+  
+
+  String getActualTime() {
+    if (_actualTime == null) {
+      return "-";
+    } else {
+      return _actualTime;
     }
   }
 
   String getAirportCode(String flightType) {
     if (flightType == "arrivals") {
-      return originAirportCode;
+      return _originAirportCode;
     } else {
-      return destinationAirportCode;
+      return _destinationAirportCode;
     }
   }
 
   String getAirportCity(String flightType) {
     if (flightType == "arrivals") {
-      return originCity;
+      return _originCity;
     } else {
-      return destinationCity;
+      return _destinationCity;
     }
   }
 
   String getAirportName(String flightType) {
     if (flightType == "arrivals") {
-      return originAirportName;
+      return _originAirportName;
     } else {
-      return destinationAirportName;
+      return _destinationAirportName;
     }
   }
 
   String getBaggage() {
-    if (baggage == null) {
+    if (_baggage == null) {
       return "-";
     } else {
-      return baggage;
+      return _baggage;
     }
   }
 
   String getEstimatedDate() {
-    if (estimatedDate == null) {
+    if (_estimatedDate == null) {
       return "-";
     } else {
-      return estimatedDate;
+      return _estimatedDate;
     }
   }
 
   String getEstimatedTime() {
-    if (estimatedTime == null) {
+    if (_estimatedTime == null) {
       return "-";
     } else {
-      return estimatedTime;
+      return _estimatedTime;
     }
   }
 
   String getGate() {
-    if (gate == null) {
+    if (_gate == null) {
       return "-";
     } else {
-      return gate;
+      return _gate;
     }
   }
 
   String getScheduledDate() {
-    if (scheduledDate == null) {
+    if (_scheduledDate == null) {
       return "-";
     } else {
-      return scheduledDate;
+      return _scheduledDate;
     }
   }
 
   String getScheduledTime() {
-    if (scheduledTime == null) {
+    if (_scheduledTime == null) {
       return "-";
     } else {
-      return scheduledTime;
+      return _scheduledTime;
     }
   }
 
   Color getStatusColor() {
-    switch (remarksCode) {
+    switch (_remarksCode) {
       case "ARRIVED_ON_TIME":
         {
           // statements;
@@ -208,10 +305,10 @@ class FidsData {
   }
 
   String getTerminal() {
-    if (terminal == null) {
+    if (_terminal == null) {
       return "-";
     } else {
-      return terminal;
+      return _terminal;
     }
   }
 }
