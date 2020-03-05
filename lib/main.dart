@@ -75,12 +75,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   int currentUserSelectedRow = 0;
 
-  String currentAirportCode = "DTW";
+  String currentAirportCode = "DUB";
 
-  String currentFlightNumber = "";
+  String currentFlightId = "";
 
   /// First flight load
   _refreshFlights() {
+
+    _updatePositions();
+
     /// Triggers progress spinner
     setState(() {
       isLoading = true;
@@ -109,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
     flightType = "arrivals";
     shouldGoToCurrentTime = true;
     currentTimeIndex = 0;
-    currentFlightNumber = "";
+    currentFlightId = "";
     saveFlightType();
     _refreshFlights();
   }
@@ -118,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
     flightType = "departures";
     shouldGoToCurrentTime = true;
     currentTimeIndex = 0;
-    currentFlightNumber = "";
+    currentFlightId = "";
     saveFlightType();
     _refreshFlights();
   }
@@ -171,13 +174,27 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
-    _itemPositionListener.itemPositions.removeListener(_updatePositions);
+   // _itemPositionListener.itemPositions.removeListener(_updatePositions);
     super.dispose();
   }
 
   void _updatePositions() {
     if (_itemPositionListener.itemPositions.value.length > 0) {
-      currentFlightNumber = myFlightsList[_itemPositionListener.itemPositions.value.first.index].getFlightNumber();
+
+      int lowestIndex = 1000000;
+
+      for (var index in _itemPositionListener.itemPositions.value) {
+        if (index.index <= lowestIndex) {
+          lowestIndex = index.index;
+        }
+      }
+
+      currentFlightId = myFlightsList[lowestIndex].getFlightId();
+
+     print(
+          "First Index - " + myFlightsList[lowestIndex].getOriginCity());
+      print(
+          myFlightsList[lowestIndex].getScheduledTime());
     }
   }
 
@@ -195,7 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     initializeTimeZones();
 
-      _itemPositionListener.itemPositions.addListener(_updatePositions);
+    //  _itemPositionListener.itemPositions.addListener(_updatePositions);
 
       restoreSearchConditions();
       futureGetAirportList();
@@ -272,7 +289,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Location airportLocation = getLocation(airport.timeZoneRegionName);
       final localCurrentDatetime = new TZDateTime.now(airportLocation);
 
-      for (var flightJSON in jsonData["fidsData"]) {
+     for (var flightJSON in jsonData["fidsData"]) {
         if (isFiltered) {
           if (searchTerminal.length > 0 &&
               (flightJSON["terminal"].toString().toLowerCase())
@@ -357,12 +374,12 @@ class _MyHomePageState extends State<MyHomePage> {
         if (shouldGoToCurrentTime) {
           if (isBeyondCurrentTime(flight, localCurrentDatetime, airportLocation)) {
             currentTimeIndex = addedIndex;
-            currentFlightNumber = flight.getFlightNumber();
+            currentFlightId = flight.getFlightId();
             shouldGoToCurrentTime = false;
           }
         }
         else {
-          if (flight.getFlightNumber() == currentFlightNumber) {
+          if (flight.getFlightId() == currentFlightId) {
             currentTimeIndex = addedIndex;
           }
         }
@@ -467,7 +484,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   if (result == "Search") {
                     shouldGoToCurrentTime = true;
                     currentTimeIndex = 0;
-                    currentFlightNumber = "";
+                    currentFlightId = "";
                     setState(() {
                       restoreSearchConditions();
                       _refreshFlights();
@@ -634,6 +651,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               " - " +
                               "bag " +
                               snapshot.data[index].getBaggage() +
+                              "flightid " +
+                              snapshot.data[index].getFlightId() +
                               " - " +
                               "gate " +
                               snapshot.data[index].getGate() +

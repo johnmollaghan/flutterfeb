@@ -157,6 +157,13 @@ class FidsData {
       return _airlineCode;
     }
   }
+  String getFlightId() {
+    if (_flightId == null) {
+      return "-";
+    } else {
+      return _flightId;
+    }
+  }
 
   String getFlightNumber() {
     if (_flightNumber == null) {

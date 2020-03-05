@@ -163,7 +163,7 @@ class FlightDetailsPage extends StatelessWidget {
           ),
         ),
         appBar: AppBar(
-          title: Text(flight.getAirlineName() + " " + flight.getAirlineCode() + flight.getFlightNumber()),
+          title: Text(flight.getFlightId() + " - " + flight.getAirlineName() + " " + flight.getAirlineCode() + flight.getFlightNumber()),
           backgroundColor: flight.getStatusColor(),
           elevation: 50.0,
         ));
