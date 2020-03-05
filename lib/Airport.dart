@@ -1,4 +1,5 @@
 import 'dart:wasm';
+import 'package:timezone/timezone.dart';
 
 class Airport {
   String fs;
@@ -24,6 +25,11 @@ class Airport {
   String city_pt;
   String name_zh;
   String city_zh;
+
+  int getAirportTimeInUTC(String timeString, String dateString) {
+
+    return 0;
+  }
 
   Airport(
       this.fs,

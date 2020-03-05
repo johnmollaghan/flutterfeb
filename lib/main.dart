@@ -6,15 +6,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_widgets/flutter_widgets.dart';
 import 'package:flutterfeb/AirportPickerPage.dart';
+import 'package:flutterfeb/AirportPickerPage.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
+import 'package:timezone/data/latest.dart';
 
 import 'Airport.dart';
 import 'FidsData.dart';
 import 'FlightDetailsPage.dart';
 import 'FlightSearchPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/timezone.dart';
 
 SplayTreeMap airportHashMap = new SplayTreeMap<String, Airport>();
+SplayTreeMap timeZoneHashmap = new SplayTreeMap<String, String>();
 
 void main() => runApp(new MyApp());
 
@@ -64,9 +70,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String filterString = "";
 
-  int currentTimeIndex = 100;
-
+  int currentTimeIndex = 0;
   var shouldGoToCurrentTime = true;
+
+  int currentUserSelectedRow = 0;
+
+  String currentAirportCode = "DTW";
+
+  String currentFlightNumber = "";
 
   /// First flight load
   _refreshFlights() {
@@ -79,28 +90,35 @@ class _MyHomePageState extends State<MyHomePage> {
 
     FidsData flight = myFlightsList.elementAt(currentTimeIndex);
 
-    print("Current Flight = " + flight.getOriginCity() + " " + flight.getDestinationCity());
+    print("Current Flight = " +
+        flight.getOriginCity() +
+        " " +
+        flight.getDestinationCity());
 
     print("### before getflights");
+
     /// Call api
-    setState(()  {
-      myFlightsFuture =  _getFlights();
+    setState(() {
+      myFlightsFuture = _getFlights();
     });
 
     print("### after getflights");
-
-
-
   }
 
   void refreshArrivals() {
     flightType = "arrivals";
+    shouldGoToCurrentTime = true;
+    currentTimeIndex = 0;
+    currentFlightNumber = "";
     saveFlightType();
     _refreshFlights();
   }
 
   void refreshDepartures() {
     flightType = "departures";
+    shouldGoToCurrentTime = true;
+    currentTimeIndex = 0;
+    currentFlightNumber = "";
     saveFlightType();
     _refreshFlights();
   }
@@ -139,13 +157,13 @@ class _MyHomePageState extends State<MyHomePage> {
           airportJSONObj["city_zh"]);
 
       airportHashMap[airportJSONObj["fs"]] = airport;
+
+      timeZoneHashmap[airportJSONObj["timeZoneRegionName"]] =
+          airportJSONObj["timeZoneRegionName"];
     }
 
     setState(() {
       myFlightsFuture = _getFlights();
-      if (shouldGoToCurrentTime) {
-
-      }
     });
 
     return true;
@@ -159,18 +177,30 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _updatePositions() {
     if (_itemPositionListener.itemPositions.value.length > 0) {
-      this.currentTimeIndex = _itemPositionListener.itemPositions.value.first.index;
+      currentFlightNumber = myFlightsList[_itemPositionListener.itemPositions.value.first.index].getFlightNumber();
     }
+  }
+
+  void setupTimezones() async {
+    var byteData = await rootBundle.load('packages/timezone/data/2019c.tzf');
+    initializeDatabase(byteData.buffer.asUint8List());
   }
 
   @override
   void initState() {
     super.initState();
 
-    _itemPositionListener.itemPositions.addListener(_updatePositions);
 
-    restoreSearchConditions();
-    futureGetAirportList();
+    var localDateTime = "";
+
+    initializeTimeZones();
+
+      _itemPositionListener.itemPositions.addListener(_updatePositions);
+
+      restoreSearchConditions();
+      futureGetAirportList();
+
+
   }
 
   /// Get information from Shared Preferences
@@ -227,7 +257,7 @@ class _MyHomePageState extends State<MyHomePage> {
     myFlightsList = [];
     try {
       var queryUrl =
-          "https://www.momentsvideos.com/horseboxsoftware/development/scriptandroid6943857410.php?pword1=10h228qPZ33728k73A&pword2=44f3384u79384tWE28y8&secret_code=HalloweenIsDone&manufacturer=samsung&model=SM-A505FN&brand=samsung&os_version=28&pword3=qtt454ud133397&pword99=164468974719&pword5=339iuy9879disu33987shfjjehg382768&pword4=a4d808f6-b261-49a2-8cae-4976fd617825&airportcodeval=CDG&airportcity=Please+check+your+device%27s+memory.&airportcountrycode=GB&airportcountryname=Error&platform=android&timestamp=1582234323176&geonames_id=none&appversion=5.0.2.1&listtypeval=";
+          "https://www.momentsvideos.com/horseboxsoftware/development/scriptandroid6943857410.php?pword1=10h228qPZ33728k73A&pword2=44f3384u79384tWE28y8&secret_code=HalloweenIsDone&manufacturer=samsung&model=SM-A505FN&brand=samsung&os_version=28&pword3=qtt454ud133397&pword99=164468974719&pword5=339iuy9879disu33987shfjjehg382768&pword4=a4d808f6-b261-49a2-8cae-4976fd617825&airportcodeval=" + currentAirportCode + "&airportcity=Please+check+your+device%27s+memory.&airportcountrycode=GB&airportcountryname=Error&platform=android&timestamp=1582234323176&geonames_id=none&appversion=5.0.2.1&listtypeval=";
 
       data = await http.get(queryUrl + flightType + "&all_param=false");
       isError = false;
@@ -237,6 +267,10 @@ class _MyHomePageState extends State<MyHomePage> {
       var jsonData = json.decode(data.body);
 
       var addedIndex = 0;
+
+      Airport airport = airportHashMap[currentAirportCode];
+      Location airportLocation = getLocation(airport.timeZoneRegionName);
+      final localCurrentDatetime = new TZDateTime.now(airportLocation);
 
       for (var flightJSON in jsonData["fidsData"]) {
         if (isFiltered) {
@@ -320,10 +354,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
         myFlightsList.add(flight);
 
-        if (shouldGoToCurrentTime == true) {
-          /// Set to current time
-          if (addedIndex == 40) {
-            currentTimeIndex = 40;
+        if (shouldGoToCurrentTime) {
+          if (isBeyondCurrentTime(flight, localCurrentDatetime, airportLocation)) {
+            currentTimeIndex = addedIndex;
+            currentFlightNumber = flight.getFlightNumber();
+            shouldGoToCurrentTime = false;
+          }
+        }
+        else {
+          if (flight.getFlightNumber() == currentFlightNumber) {
+            currentTimeIndex = addedIndex;
           }
         }
         addedIndex++;
@@ -331,7 +371,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
       print("Number of Flights = ");
       print(myFlightsList.length);
-
     } catch (exception) {
       isLoading = false;
       isError = true;
@@ -341,8 +380,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return myFlightsList;
   }
-  final ItemPositionsListener _itemPositionListener = ItemPositionsListener.create();
 
+  final ItemPositionsListener _itemPositionListener =
+      ItemPositionsListener.create();
 
   @override
   Widget build(BuildContext context) {
@@ -425,6 +465,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
 
                   if (result == "Search") {
+                    shouldGoToCurrentTime = true;
+                    currentTimeIndex = 0;
+                    currentFlightNumber = "";
                     setState(() {
                       restoreSearchConditions();
                       _refreshFlights();
@@ -551,21 +594,23 @@ class _MyHomePageState extends State<MyHomePage> {
             if (isLoading == true) {
               return Container(
                   child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                    new CircularProgressIndicator(strokeWidth: 1,),
-                    new SizedBox(height: 30,),
-                    new Text(
-                        this.filterString),
-                ],
-              ),
-                  ));
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    new CircularProgressIndicator(
+                      strokeWidth: 1,
+                    ),
+                    new SizedBox(
+                      height: 30,
+                    ),
+                    new Text(this.filterString),
+                  ],
+                ),
+              ));
             } else {
               return ScrollablePositionedList.builder(
                 itemPositionsListener: _itemPositionListener,
                 initialScrollIndex: currentTimeIndex,
-
                 itemCount: snapshot.data.length,
                 itemBuilder: (BuildContext context, int index) {
                   return Card(
@@ -630,10 +675,24 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
+  bool isBeyondCurrentTime(FidsData flight, TZDateTime localCurrentDateTime, Location airportLocation) {
+
+    DateFormat format = new DateFormat("MM/dd/yyyy HH:mm");
+    DateTime flightTime = format.parse(flight.getScheduledDate() + " " + flight.getScheduledTime());
+
+    final localFlightTime = new TZDateTime(airportLocation, flightTime.year, flightTime.month, flightTime.day, flightTime.hour, flightTime.minute);
+
+    if (localFlightTime.isAfter(localCurrentDateTime)) {
+      return true;
+    }
+    else {
+      return false;
+    }
+
+  }
 }
 
 afterLoadMethod(BuildContext context) {
- print("OK, widet tree has been rebuilt");
-
-
+  print("OK, widet tree has been rebuilt");
 }

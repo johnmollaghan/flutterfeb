@@ -21,6 +21,8 @@ dependencies:
     sdk: flutter
   shared_preferences: ^0.5.6+2
   flutter_widgets: ^0.1.11
+  intl: ^0.16.1
+  timezone: ^0.5.6
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -48,6 +50,7 @@ flutter:
 
   assets:
     - combined_airports.json
+    - packages/timezone/data/2019c.tzf
 
   #   - images/a_dot_ham.jpeg
 
