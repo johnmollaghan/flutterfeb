@@ -21,6 +21,25 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
   TextEditingController textFlightNumberController = TextEditingController();
   TextEditingController textTerminalController = TextEditingController();
 
+
+  clearSearchConditions() async {
+    print("clearing search");
+    final prefs = await SharedPreferences.getInstance();
+
+    this.searchFlightNumber = "";
+    this.searchGate = "";
+    this.searchBag = "";
+    this.searchCity= "";
+    this.searchTerminal  ="";
+
+// set value
+    prefs.setString('searchGate', this.searchGate.trim().toLowerCase());
+    prefs.setString('searchBag', this.searchBag.trim().toLowerCase());
+    prefs.setString('searchCity', this.searchCity.trim().toLowerCase());
+    prefs.setString('searchFlightNumber', this.searchFlightNumber.trim().toLowerCase().replaceAll(" ", ""));
+    prefs.setString('searchTerminal', this.searchTerminal.trim().toLowerCase());
+  }
+
   saveSearchConditions() async {
     print("saving settings");
     final prefs = await SharedPreferences.getInstance();
@@ -163,6 +182,18 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
                     height: 24.0,
                   ),
                   RaisedButton(
+                    child: Text("Show All Flights"),
+                    onPressed: () {
+                      FutureBuilder<dynamic>(
+                          future: clearSearchConditions(),
+                          builder: (context, snapshot) {
+                            print('In Builder');
+                          });
+                      Navigator.pop(context, 'Search');
+                    },
+
+                  ),
+                  RaisedButton(
                     child: Text("Search"),
                     onPressed: () {
                       FutureBuilder<dynamic>(
@@ -172,7 +203,8 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
                           });
                       Navigator.pop(context, 'Search');
                     },
-                  )
+
+                  ),
                 ],
               ),
             ),
@@ -192,7 +224,7 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
                         builder: (context, snapshot) {
                           print('In Builder');
                         });
-                    Navigator.pop(context, 'Yep!');
+                    Navigator.pop(context, 'Search');
                   },
                   child: Icon(
                     Icons.search,

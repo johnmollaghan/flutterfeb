@@ -79,6 +79,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String currentFlightId = "";
 
+  bool isProVersion;
+
+  bool isAllAirports;
+
+  String admobAppId = "";
+  String admobBannerId = "";
+  String admobInterstitialId = "";
+
+  String currentLocale;
+
   /// First flight load
   _refreshFlights() {
 
@@ -207,7 +217,15 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
+    isProVersion = false;
+    isAllAirports = false;
+    admobAppId = "";
+    admobBannerId = "";
+    admobInterstitialId = "";
+    currentLocale = "";
 
+    Locale myLocale = Localizations.localeOf(context);
+    
     var localDateTime = "";
 
     initializeTimeZones();
@@ -435,19 +453,23 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.flight),
-              onPressed: () {
-                if (!isLoading) {
-                  print("Airport Button Pressed");
-                  Navigator.push(
-                      context,
-                      new MaterialPageRoute(
-                          builder: (context) => AirportPickerPage()));
-                } else {
-                  null;
-                }
-              },
+            Visibility(
+              visible: isAllAirports,
+              child: IconButton(
+                icon: Icon(Icons.flight),
+
+                onPressed: () {
+                  if (!isLoading) {
+                    print("Airport Button Pressed");
+                    Navigator.push(
+                        context,
+                        new MaterialPageRoute(
+                            builder: (context) => AirportPickerPage()));
+                  } else {
+                    null;
+                  }
+                },
+              ),
             ),
             IconButton(
               icon: Icon(Icons.flight_land),
@@ -549,9 +571,12 @@ class _MyHomePageState extends State<MyHomePage> {
               leading: new Icon(Icons.flight_takeoff),
               title: Text("Departures"),
             ),
-            ListTile(
-              leading: new Icon(Icons.flight),
-              title: Text("Airports"),
+            Visibility(
+              visible: isAllAirports,
+              child: ListTile(
+                leading: new Icon(Icons.flight),
+                title: Text("Airports"),
+              ),
             ),
             ListTile(
               leading: new Icon(Icons.map),
