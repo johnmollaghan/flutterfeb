@@ -21,7 +21,6 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
   TextEditingController textFlightNumberController = TextEditingController();
   TextEditingController textTerminalController = TextEditingController();
 
-
   clearSearchConditions() async {
     print("clearing search");
     final prefs = await SharedPreferences.getInstance();
@@ -29,14 +28,15 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
     this.searchFlightNumber = "";
     this.searchGate = "";
     this.searchBag = "";
-    this.searchCity= "";
-    this.searchTerminal  ="";
+    this.searchCity = "";
+    this.searchTerminal = "";
 
 // set value
     prefs.setString('searchGate', this.searchGate.trim().toLowerCase());
     prefs.setString('searchBag', this.searchBag.trim().toLowerCase());
     prefs.setString('searchCity', this.searchCity.trim().toLowerCase());
-    prefs.setString('searchFlightNumber', this.searchFlightNumber.trim().toLowerCase().replaceAll(" ", ""));
+    prefs.setString('searchFlightNumber',
+        this.searchFlightNumber.trim().toLowerCase().replaceAll(" ", ""));
     prefs.setString('searchTerminal', this.searchTerminal.trim().toLowerCase());
   }
 
@@ -48,7 +48,8 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
     prefs.setString('searchGate', this.searchGate.trim().toLowerCase());
     prefs.setString('searchBag', this.searchBag.trim().toLowerCase());
     prefs.setString('searchCity', this.searchCity.trim().toLowerCase());
-    prefs.setString('searchFlightNumber', this.searchFlightNumber.trim().toLowerCase().replaceAll(" ", ""));
+    prefs.setString('searchFlightNumber',
+        this.searchFlightNumber.trim().toLowerCase().replaceAll(" ", ""));
     prefs.setString('searchTerminal', this.searchTerminal.trim().toLowerCase());
 
     print("jm_log setting flight number to - " + this.searchFlightNumber);
@@ -86,7 +87,6 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-
     bool isFilterEnabled = false;
     return Scaffold(
         body: SingleChildScrollView(
@@ -98,8 +98,6 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
                   SizedBox(
                     height: 24.0,
                   ),
-
-                
                   TextFormField(
                     controller: textFlightNumberController,
                     decoration: InputDecoration(
@@ -191,7 +189,6 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
                           });
                       Navigator.pop(context, 'Search');
                     },
-
                   ),
                   RaisedButton(
                     child: Text("Search"),
@@ -203,7 +200,6 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
                           });
                       Navigator.pop(context, 'Search');
                     },
-
                   ),
                 ],
               ),

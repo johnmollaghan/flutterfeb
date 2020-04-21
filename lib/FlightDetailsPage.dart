@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'FlightTimeWidget.dart';
+import 'package:flutterfeb/FlightArrivalWidget.dart';
+import 'package:flutterfeb/FlightDepartureWidget.dart';
 
 import 'FidsData.dart';
 
@@ -18,159 +19,54 @@ class FlightDetailsPage extends StatelessWidget {
               topRowDetails(flight: flight),
               Chip(
                 label: Text(
-                  flight.getRemarksWithTime() +
-                      " - " +
-                      flight.getStatusCode() +
-                      " - " +
-                      flight.getRemarksCode(),
+                  flight.getFlightstatus(),
                   style: TextStyle(color: Colors.white),
                 ),
                 backgroundColor: flight.getStatusColor(),
               ),
-              FlightTimeWidget(flight: flight),
               Card(
+                color: Colors.white,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text("FROM"),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        flight.getOriginCity(),
-                        style: TextStyle(
-                          fontSize: 30.0,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        flight.getOriginAirportName(),
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          fontStyle: FontStyle.italic,
-                        ),
+                        "DEPARTURE INFORMATION" + " " + flight.getCodeShares().toString(),
+                        style: TextStyle(color: Colors.black),
                       ),
                     ),
                   ],
                 ),
               ),
+              FlightDepartureWidget(flight: flight),
               Card(
+                color: Colors.white,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text("TO"),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        flight.getDestinationCity(),
-                        style: TextStyle(
-                          fontSize: 30.0,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        flight.getDestinationAirportName(),
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          fontStyle: FontStyle.italic,
-                        ),
+                        "ARRIVAL INFORMATION",
+                        style: TextStyle(color: Colors.black),
                       ),
                     ),
                   ],
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Expanded(
-                    child: Card(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text("TERMINAL"),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              flight.getTerminal(),
-                              style: TextStyle(
-                                fontSize: 30.0,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Card(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text("GATE"),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              flight.getGate(),
-                              style: TextStyle(
-                                fontSize: 30.0,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Card(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text("BAGGAGE"),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              flight.getBaggage(),
-                              style: TextStyle(
-                                fontSize: 30.0,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              FlightArrivalWidget(flight: flight),
             ],
           ),
         ),
         appBar: AppBar(
-          title: Text(flight.getFlightId() + " - " + flight.getAirlineName() + " " + flight.getAirlineCode() + flight.getFlightNumber()),
+          title:
+              Text(flight.getFlightNumber() + " - " + flight.getAirlineName()),
           backgroundColor: flight.getStatusColor(),
           elevation: 50.0,
         ));
   }
 }
-
-
 
 class topRowDetails extends StatelessWidget {
   const topRowDetails({
@@ -190,11 +86,10 @@ class topRowDetails extends StatelessWidget {
           Container(
             child: Column(
               children: <Widget>[
-                Text("FROM"),
+                Text("DEPARTING FROM"),
                 Text(
-                  flight.getOriginAirportCode(),
-                  style: TextStyle(
-                      fontSize: 40.0, fontWeight: FontWeight.bold),
+                  flight.getDepartureAirportCode(),
+                  style: TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -203,11 +98,10 @@ class topRowDetails extends StatelessWidget {
           Container(
             child: Column(
               children: <Widget>[
-                Text("TO"),
+                Text("ARRIVING TO"),
                 Text(
-                  flight.getDestinationAirportCode(),
-                  style: TextStyle(
-                      fontSize: 40.0, fontWeight: FontWeight.bold),
+                  flight.getArrivalAirportCode(),
+                  style: TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold),
                 ),
               ],
             ),

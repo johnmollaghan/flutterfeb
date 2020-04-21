@@ -27,7 +27,6 @@ class Airport {
   String city_zh;
 
   int getAirportTimeInUTC(String timeString, String dateString) {
-
     return 0;
   }
 

@@ -13,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:timezone/data/latest.dart';
 
 import 'Airport.dart';
+import 'Globals.dart';
 import 'FidsData.dart';
 import 'FlightDetailsPage.dart';
 import 'FlightSearchPage.dart';
@@ -58,8 +59,9 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isFiltered = false;
 
   /// Flights returned from api call
-  Future<List<FidsData>> myFlightsFuture;
-  List<FidsData> myFlightsList;
+  Future<SplayTreeMap<String, FidsData>> myFlightFutureSortedMap;
+  SplayTreeMap<String, FidsData> myFlightsSortedMap =
+      new SplayTreeMap<String, FidsData>();
 
   /// Control state during loading
   var isLoading = true;
@@ -75,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   int currentUserSelectedRow = 0;
 
-  String currentAirportCode = "DUB";
+  String currentAirportCode = "ORD";
 
   String currentFlightId = "";
 
@@ -89,9 +91,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String currentLocale;
 
+  String flight_date = "2020-03-18";
+  static int flight_limit = 100;
+  int flight_offset = 9 * flight_limit;
+
   /// First flight load
   _refreshFlights() {
-
     _updatePositions();
 
     /// Triggers progress spinner
@@ -101,25 +106,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
     print("Current row is = " + currentTimeIndex.toString());
 
-    FidsData flight = myFlightsList.elementAt(currentTimeIndex);
-
-    print("Current Flight = " +
-        flight.getOriginCity() +
-        " " +
-        flight.getDestinationCity());
-
-    print("### before getflights");
+    FidsData flight = myFlightsSortedMap.values.elementAt(currentTimeIndex);
 
     /// Call api
     setState(() {
-      myFlightsFuture = _getFlights();
+      myFlightFutureSortedMap = _getFlights();
     });
-
-    print("### after getflights");
   }
 
   void refreshArrivals() {
-    flightType = "arrivals";
+    flightType = Globals.ARRIVALS_CONST;
     shouldGoToCurrentTime = true;
     currentTimeIndex = 0;
     currentFlightId = "";
@@ -127,8 +123,10 @@ class _MyHomePageState extends State<MyHomePage> {
     _refreshFlights();
   }
 
+
+
   void refreshDepartures() {
-    flightType = "departures";
+    flightType = Globals.DEPARTURES_CONST;
     shouldGoToCurrentTime = true;
     currentTimeIndex = 0;
     currentFlightId = "";
@@ -167,7 +165,8 @@ class _MyHomePageState extends State<MyHomePage> {
           airportJSONObj["name_pt"],
           airportJSONObj["city_pt"],
           airportJSONObj["name_zh"],
-          airportJSONObj["city_zh"]);
+          airportJSONObj["city_zh"]
+      );
 
       airportHashMap[airportJSONObj["fs"]] = airport;
 
@@ -176,7 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     setState(() {
-      myFlightsFuture = _getFlights();
+      myFlightFutureSortedMap = _getFlights();
     });
 
     return true;
@@ -184,13 +183,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
-   // _itemPositionListener.itemPositions.removeListener(_updatePositions);
+    // _itemPositionListener.itemPositions.removeListener(_updatePositions);
     super.dispose();
   }
 
   void _updatePositions() {
     if (_itemPositionListener.itemPositions.value.length > 0) {
-
       int lowestIndex = 1000000;
 
       for (var index in _itemPositionListener.itemPositions.value) {
@@ -199,12 +197,8 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       }
 
-      currentFlightId = myFlightsList[lowestIndex].getFlightId();
-
-     print(
-          "First Index - " + myFlightsList[lowestIndex].getOriginCity());
-      print(
-          myFlightsList[lowestIndex].getScheduledTime());
+      currentFlightId =
+          myFlightsSortedMap.values.elementAt(lowestIndex).getFlightNumber();
     }
   }
 
@@ -218,31 +212,29 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
 
     isProVersion = false;
-    isAllAirports = false;
+    isAllAirports = true;
     admobAppId = "";
     admobBannerId = "";
     admobInterstitialId = "";
     currentLocale = "";
 
-    Locale myLocale = Localizations.localeOf(context);
-    
-    var localDateTime = "";
+    //  Locale myLocale = Localizations.localeOf(context);
+
+    // var localDateTime = "";
 
     initializeTimeZones();
 
     //  _itemPositionListener.itemPositions.addListener(_updatePositions);
 
-      restoreSearchConditions();
-      futureGetAirportList();
-
-
+    restoreSearchConditions();
+    futureGetAirportList();
   }
 
   /// Get information from Shared Preferences
   restoreSearchConditions() async {
     final prefs = await SharedPreferences.getInstance();
 
-    this.flightType = prefs.getString('flightType') ?? "arrivals";
+    this.flightType = prefs.getString('flightType') ?? Globals.ARRIVALS_CONST;
     this.searchGate = prefs.getString('searchGate') ?? "";
     this.searchBag = prefs.getString('searchBag') ?? "";
     this.searchCity = prefs.getString('searchCity') ?? "";
@@ -287,125 +279,162 @@ class _MyHomePageState extends State<MyHomePage> {
     prefs.setString('flightType', this.flightType.trim().toLowerCase());
   }
 
-  Future<List<FidsData>> _getFlights() async {
+  String getCityFromCode(String code) {
+    if (airportHashMap.containsKey(code)) {
+      return airportHashMap[code].city;
+    }
+    else {
+      return code;
+    }
+  }
+
+  Future<SplayTreeMap<String, FidsData>> _getFlights() async {
     var data;
-    myFlightsList = [];
+    myFlightsSortedMap.clear();
     try {
       var queryUrl =
-          "https://www.momentsvideos.com/horseboxsoftware/development/scriptandroid6943857410.php?pword1=10h228qPZ33728k73A&pword2=44f3384u79384tWE28y8&secret_code=HalloweenIsDone&manufacturer=samsung&model=SM-A505FN&brand=samsung&os_version=28&pword3=qtt454ud133397&pword99=164468974719&pword5=339iuy9879disu33987shfjjehg382768&pword4=a4d808f6-b261-49a2-8cae-4976fd617825&airportcodeval=" + currentAirportCode + "&airportcity=Please+check+your+device%27s+memory.&airportcountrycode=GB&airportcountryname=Error&platform=android&timestamp=1582234323176&geonames_id=none&appversion=5.0.2.1&listtypeval=";
+          "https://www.momentsvideos.com/horseboxsoftware/development/scriptflutter_aviation_stack38394837465.php?pword1=10h228qPZ33728k73A&airportcodeval=" +
+              currentAirportCode +
+              "&listtypeval=" +
+              flightType +
+              "&flight_date=" +
+              flight_date +
+              "&flight_offset=" + flight_offset.toString() +
+      "&flight_limit=" + flight_limit.toString();
 
-      data = await http.get(queryUrl + flightType + "&all_param=false");
+      data = await http.get(queryUrl);
       isError = false;
       errorString = "";
       isLoading = false;
 
       var jsonData = json.decode(data.body);
 
-      var addedIndex = 0;
-
       Airport airport = airportHashMap[currentAirportCode];
       Location airportLocation = getLocation(airport.timeZoneRegionName);
       final localCurrentDatetime = new TZDateTime.now(airportLocation);
 
-     for (var flightJSON in jsonData["fidsData"]) {
-        if (isFiltered) {
-          if (searchTerminal.length > 0 &&
-              (flightJSON["terminal"].toString().toLowerCase())
-                      .contains(searchTerminal) ==
-                  false) {
-            continue;
-          }
+      for (var flightListJSON in jsonData["data"]) {
+        var arrivalJSON = flightListJSON["arrival"];
+        var departureJSON = flightListJSON["departure"];
+        var flightJSON = flightListJSON["flight"];
+        var aircraftJSON = flightListJSON["aircraft"];
+        var liveJSON = flightListJSON["live"];
+        var codeShared = flightListJSON["codeShared"];
+        var airlineJSON = flightListJSON["airline"];
 
-          if (searchFlightNumber.length > 0 &&
-              (flightJSON["airlineCode"].toString().toLowerCase() +
-                          flightJSON["flightNumber"].toString().toLowerCase())
-                      .toString()
-                      .contains(searchFlightNumber) ==
-                  false) {
-            continue;
-          }
+        var flightNumber = flightJSON["iata"];
 
-          if (searchCity.length > 0) {
-            if (flightType == "arrivals") {
-              if (flightJSON["originCity"]
-                      .toString()
-                      .toLowerCase()
-                      .contains(searchCity) ==
-                  false) {
-                continue;
-              }
-            } else {
-              if (flightJSON["destinationCity"]
-                      .toString()
-                      .toLowerCase()
-                      .contains(searchCity) ==
-                  false) {
-                continue;
-              }
-            }
-          }
+        var timeString = Globals.getTimeFromString(arrivalJSON["scheduled"]);
 
-          if (searchBag.length > 0 &&
-              (flightJSON["baggage"].toString().toLowerCase())
-                      .contains(searchBag) ==
-                  false) {
-            continue;
-          }
+        if (timeString == "") {
+          continue;
+        }
 
-          if (searchGate.length > 0 &&
-              (flightJSON["gate"].toString().toLowerCase())
-                      .contains(searchGate) ==
-                  false) {
-            continue;
-          }
+        timeString = Globals.getTimeFromString(departureJSON["scheduled"]);
+
+        if (timeString == "") {
+          continue;
         }
 
         FidsData flight = FidsData(
-            flightJSON["flightId"],
-            flightJSON["statusCode"],
-            flightJSON["gate"],
-            flightJSON["terminal"],
-            flightJSON["baggage"],
-            flightJSON["airlineName"],
-            flightJSON["airlineCode"],
-            flightJSON["flightNumber"],
-            flightJSON["originAirportName"],
-            flightJSON["originAirportCode"],
-            flightJSON["originCity"],
-            flightJSON["originCountryCode"],
-            flightJSON["destinationAirportName"],
-            flightJSON["destinationAirportCode"],
-            flightJSON["destinationCity"],
-            flightJSON["destinationCountryCode"],
-            flightJSON["delayed"],
-            flightJSON["remarksWithTime"],
-            flightJSON["remarksCode"],
-            flightJSON["scheduledTime"],
-            flightJSON["scheduledDate"],
-            flightJSON["estimatedTime"],
-            flightJSON["estimatedDate"],
-            flightJSON["actualTime"],
-            flightJSON["actualDate"]);
+            airlineJSON["iata"],
+            airlineJSON["name"],
+            arrivalJSON["actual_runway"],
+            arrivalJSON["actual"],
+            arrivalJSON["baggage"],
+            arrivalJSON["delay"],
+            arrivalJSON["estimated_runway"],
+            arrivalJSON["estimated"],
+            arrivalJSON["gate"],
+            arrivalJSON["iata"],
+            arrivalJSON["scheduled"],
+            arrivalJSON["terminal"],
+            departureJSON["actual_runway"],
+            departureJSON["actual"],
+            departureJSON["baggage"],
+            departureJSON["delay"],
+            departureJSON["estimated_runway"],
+            departureJSON["estimated"],
+            departureJSON["gate"],
+            departureJSON["iata"],
+            departureJSON["scheduled"],
+            departureJSON["terminal"],
+            flightJSON["iata"],
+            flightListJSON["flight_status"],
+            flightType,
+            getCityFromCode(arrivalJSON["iata"]),
+            getCityFromCode(departureJSON["iata"]),
 
-        myFlightsList.add(flight);
+        );
 
-        if (shouldGoToCurrentTime) {
-          if (isBeyondCurrentTime(flight, localCurrentDatetime, airportLocation)) {
-            currentTimeIndex = addedIndex;
-            currentFlightId = flight.getFlightId();
-            shouldGoToCurrentTime = false;
+        if (searchTerminal.length > 0 &&
+            (flight.getTerminal().toLowerCase()).contains(searchTerminal) ==
+                false) {
+          continue;
+        }
+
+        if (searchFlightNumber.length > 0 &&
+            (flight.getFlightNumber().toLowerCase())
+                    .toString()
+                    .contains(searchFlightNumber) ==
+                false) {
+          continue;
+        }
+
+        if (searchCity.length > 0) {
+          if (flightType == Globals.ARRIVALS_CONST) {
+            if (flight.getOriginCity().toLowerCase().contains(searchCity) ==
+                false) {
+              continue;
+            }
+          } else {
+            if (flight
+                    .getDestinationCity()
+                    .toLowerCase()
+                    .contains(searchCity) ==
+                false) {
+              continue;
+            }
           }
         }
-        else {
-          if (flight.getFlightId() == currentFlightId) {
+
+        if (searchBag.length > 0 &&
+            (flight.getBaggage().toLowerCase()).contains(searchBag) == false) {
+          continue;
+        }
+
+        if (searchGate.length > 0 &&
+            (flight.getGate().toLowerCase()).contains(searchGate) == false) {
+          continue;
+        }
+
+        // Sort by time
+
+        var uniqueKey = flight.getUniqueKey();
+        if (myFlightsSortedMap.containsKey(uniqueKey)) {
+          myFlightsSortedMap[uniqueKey].addCodeShare(flight.getFlightNumber());
+        } else {
+          myFlightsSortedMap[uniqueKey] = flight;
+        }
+      }
+
+      // Find current time
+      var addedIndex = 0;
+      for (var flight in myFlightsSortedMap.values) {
+        if (shouldGoToCurrentTime) {
+          if (isBeyondCurrentTime(
+              flight, localCurrentDatetime, airportLocation)) {
+            currentTimeIndex = addedIndex;
+            currentFlightId = flight.getFlightNumber();
+            shouldGoToCurrentTime = false;
+          }
+        } else {
+          if (flight.getFlightNumber() == currentFlightId) {
             currentTimeIndex = addedIndex;
           }
         }
         addedIndex++;
       }
-
-      print("Number of Flights = ");
-      print(myFlightsList.length);
     } catch (exception) {
       isLoading = false;
       isError = true;
@@ -413,7 +442,7 @@ class _MyHomePageState extends State<MyHomePage> {
       errorString = errorString.replaceAll("momentsvideos", "**");
     }
 
-    return myFlightsList;
+    return myFlightsSortedMap;
   }
 
   final ItemPositionsListener _itemPositionListener =
@@ -457,7 +486,6 @@ class _MyHomePageState extends State<MyHomePage> {
               visible: isAllAirports,
               child: IconButton(
                 icon: Icon(Icons.flight),
-
                 onPressed: () {
                   if (!isLoading) {
                     print("Airport Button Pressed");
@@ -599,7 +627,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Container(
         child: FutureBuilder(
-          future: myFlightsFuture,
+          future: myFlightFutureSortedMap,
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             print("Query Completed...Error is...");
 
@@ -657,40 +685,32 @@ class _MyHomePageState extends State<MyHomePage> {
                 itemBuilder: (BuildContext context, int index) {
                   return Card(
                     child: ListTile(
-                      leading: Text(snapshot.data[index].getScheduledTime() +
+                      leading: Text(Globals.getTimeFromString(snapshot
+                              .data.values
+                              .elementAt(index)
+                              .getScheduledTime()) +
                           "\n" +
-                          snapshot.data[index].getScheduledDate()),
+                          Globals.getDateFromString(snapshot.data.values
+                              .elementAt(index)
+                              .getScheduledTime())),
                       //  leading: Text(snapshot.data[index].scheduledTime),
                       title: Text(
-                        //  airportList[snapshot.data[index].getAirportCode(flightType)].city_zh ,
-
-                        snapshot.data[index].getAirportCity(flightType),
+                        snapshot.data.values.elementAt(index).getAirportCity() +
+                            " " +
+                            snapshot.data.values
+                                .elementAt(index)
+                                .getFlightstatus(),
                         style: TextStyle(fontSize: 20),
                       ),
-                      subtitle: Text(
-                          snapshot.data[index].getAirportName(flightType) +
-                              "\n" +
-                              snapshot.data[index].getRemarksWithTime() +
-                              " - " +
-                              snapshot.data[index].getStatusCode() +
-                              " - " +
-                              "bag " +
-                              snapshot.data[index].getBaggage() +
-                              "flightid " +
-                              snapshot.data[index].getFlightId() +
-                              " - " +
-                              "gate " +
-                              snapshot.data[index].getGate() +
-                              " - " +
-                              snapshot.data[index].getAirlineCode() +
-                              " - " +
-                              snapshot.data[index].getRemarksCode()),
+                      subtitle: Text(snapshot.data.values
+                          .elementAt(index)
+                          .getAirportName()),
                       onTap: () {
                         Navigator.push(
                             context,
                             new MaterialPageRoute(
-                                builder: (context) =>
-                                    FlightDetailsPage(snapshot.data[index])));
+                                builder: (context) => FlightDetailsPage(
+                                    snapshot.data.values.elementAt(index))));
                       },
                     ),
                   );
@@ -720,20 +740,30 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  bool isBeyondCurrentTime(FidsData flight, TZDateTime localCurrentDateTime, Location airportLocation) {
+  bool isBeyondCurrentTime(FidsData flight, TZDateTime localCurrentDateTime,
+      Location airportLocation) {
+    try {
+      var truncatedstring =
+          flight.getScheduledTime().toString().substring(0, 16);
+      DateFormat format = new DateFormat("yyyy-MM-ddTHH:mm");
+      DateTime flightTime = format.parse(truncatedstring);
 
-    DateFormat format = new DateFormat("MM/dd/yyyy HH:mm");
-    DateTime flightTime = format.parse(flight.getScheduledDate() + " " + flight.getScheduledTime());
+      final localFlightTime = new TZDateTime(airportLocation, flightTime.year,
+          flightTime.month, flightTime.day, flightTime.hour, flightTime.minute);
 
-    final localFlightTime = new TZDateTime(airportLocation, flightTime.year, flightTime.month, flightTime.day, flightTime.hour, flightTime.minute);
-
-    if (localFlightTime.isAfter(localCurrentDateTime)) {
-      return true;
-    }
-    else {
+      if (localFlightTime.isAfter(localCurrentDateTime)) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (exception) {
+      print("Problem Parsing Date: " +
+          flight.getFlightNumber() +
+          "  [" +
+          flight.getScheduledTime() +
+          "]");
       return false;
     }
-
   }
 }
 
